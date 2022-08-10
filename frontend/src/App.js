@@ -2,8 +2,6 @@ import { useEffect, useState } from 'react';
 import Api from './Api';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Swal from 'sweetalert2';
-import Wheel from './Wheel';
-import WheelWin from './WheelWin';
 import 'font-awesome/css/font-awesome.min.css';
 import WheelComponent from 'react-wheel-of-prizes';
 
