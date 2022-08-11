@@ -1,21 +1,24 @@
-from gc import get_objects
-from rest_framework import viewsets,generics
-from luckywheel.models import Award, HideAward, SpacialAward
-from luckywheel.serializers import AwardSerializer, HideAwardSerializer, SpacialAwardSerializer
+import random
+from rest_framework import viewsets,views
+from luckywheel.models import LuckyAward
+from luckywheel.serializers import LuckyAwardSerializer
 from rest_framework.decorators import api_view
 from rest_framework import response,status
 
-class AwardApi(viewsets.ModelViewSet):
-    queryset=Award.objects.all().order_by('-id')
-    serializer_class=AwardSerializer
+class LuckyAwardApi(viewsets.ModelViewSet):
+    queryset=LuckyAward.objects.all()
+    serializer_class=LuckyAwardSerializer
     lookup_field='text'
-class SpacialAwardApi(viewsets.ModelViewSet):
-    queryset=SpacialAward.objects.all()
-    serializer_class=SpacialAwardSerializer
-    lookup_field='count_number'
 
-class HideAwardApi(viewsets.ModelViewSet):
-    serializer_class=HideAwardSerializer
-    queryset=HideAward.objects.all()
-
+class RandomAwardApi(views.APIView):
+    def get(self,request,format=None):
+        try:
+            obj=LuckyAward.objects.filter(active=True)
+            newobj=random.choice(obj)
+            data={
+                'award':newobj.text
+            }
+            return response.Response(data=data,status=status.HTTP_200_OK)    
+        except IndexError:
+            return response.Response(status=status.HTTP_404_NOT_FOUND)
  

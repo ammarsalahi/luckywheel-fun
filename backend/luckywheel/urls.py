@@ -1,10 +1,11 @@
 from django.urls import path
 from rest_framework import routers
-from luckywheel.api import HideAwardApi, AwardApi, SpacialAwardApi
+from luckywheel.api import LuckyAwardApi, RandomAwardApi
 router=routers.DefaultRouter()
 
-router.register('award',AwardApi,basename='award')
-router.register('spacialaward',SpacialAwardApi,basename='spacialaward')
-router.register('hideaward',HideAwardApi,basename='hideaward')
+router.register('luckyaward',LuckyAwardApi,basename='award')
 
-urlpatterns=router.urls
+urlpatterns=[
+    path('award/',RandomAwardApi.as_view()),
+]
+urlpatterns+=router.urls

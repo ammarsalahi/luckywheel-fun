@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react';
 import Api from './Api';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Swal from 'sweetalert2';
-import 'font-awesome/css/font-awesome.min.css';
 import WheelComponent from 'react-wheel-of-prizes';
+import 'font-awesome/css/font-awesome.min.css';
 
 function App() {
   
@@ -11,42 +11,36 @@ function App() {
   const [color, setcolor] = useState([])
   const [show, setshow] = useState(false);
   const [data, setdata] = useState([]);
-  const [spacial, setspacial] = useState("");
-  const [limit, setlimit] = useState(-1);
-  const [hide, sethide] = useState("")
-  let count=1
-
+  const [isload,setisload]=useState(true);
+  const [win, setWin] = useState("");
   useEffect(()=>{
-        getData();
-        getSpacialAward()
-        getHideAward()
+    if(isload==true){
+      getData();
+      getActiveData() 
+      setisload(false)
+    }
+       
   },[]);
   
   const getData=()=>{
-    Api.get('/award/').then(res=>{
+    Api.get('/luckyaward/').then(res=>{
       for(let i=0;i<res.data.length;i++){
         setdata(res.data)
       }
-    });
-  }
-  const getSpacialAward=()=>{
-    Api.get('/spacialaward/').then(res=>{
-      for(let i=0;i<res.data.length;i++){
-        setspacial(res.data[i].award)
-        setlimit(res.data[i].count_number);
+      if(res.data.length===0){
+        setisload(true);
       }
     }).catch(err=>{
-      setspacial("");
-      setlimit(-1)
+       setisload(true);
     });
   }
-  const getHideAward=()=>{
-    Api.get('/hideaward/').then(res=>{
-      for(let i=0;i<res.data.length;i++){
-        sethide(res.data[i].award)
-      }
+  const getActiveData=()=>{
+    Api.get('/award/').then(res=>{
+      console.log(res.data.award)
+      setWin(res.data.award);
+      
     }).catch(err=>{
-      sethide("");
+      setWin("");
     });
   }
   const setDataToWheel=()=>{
@@ -56,17 +50,9 @@ function App() {
     }
     setshow(true)
   }
-  const showAlert=(text,title)=>{
-    Swal.fire({
-      iconHtml:'<i class="fa fa-trophy text-warning" style="fontSize:100px" ></i>',
-      title:title,
-      html:' <div dir="rtl"><h2 className="text-success">'+text+'</h2></div>',
-      confirmButtonText:'باشه',
-      showConfirmButton:true
-    });
-  }
-  const showAlertAward=(text)=>{
-    Api.get('/award/'+text).then(res=>{
+ 
+  const showAlert=(text)=>{
+    Api.get('/luckyaward/'+text).then(res=>{
       Swal.fire({
         iconHtml:'<i class="fa fa-trophy text-warning" style="fontSize:100px" ></i>',
         html:' <div dir="rtl"><h2 className="text-success">'+res.data.award+'</h2></div>',
@@ -77,42 +63,32 @@ function App() {
    
   }
   const onFinished = (winner) => {
-    if(hide===""){
-      if(count===limit){
-        showAlert(spacial,'جایزه ویژه');
-        count++;
-      }else{
-        showAlertAward(winner);
-        count++;
-      }
-    }else{
-      showAlert(hide,'');
-    }
-    
-    
+    showAlert(winner)
   }
- 
   return (
       <div dir='rtl'>
       <center>
       {show ===false ?
        <div className='container' style={{paddingTop:"20%"}}>
-        <button className='btn btn-lg btn-warning rounded-pill' onClick={setDataToWheel}>شانس خود را امتحان کنید</button>
+       
+        <button className='btn btn-lg btn-warning rounded-pill' disabled={isload} onClick={setDataToWheel}>شانس خود را امتحان کنید</button>
       </div>:
-      <WheelComponent
-      segments={segment}
-      segColors={color}
-      onFinished={(winner)=> onFinished(winner)}
-      primaryColor='#d4a961'
-      contrastColor='#524126'
-      buttonText="بچرخ"
-      isOnlyOnce={false}
-      size={250}
-      upDuration={100}
-      downDuration={1000}
-      fontFamily='Arial'
-    />
+       <WheelComponent
+       segments={segment}
+       segColors={color}
+       winningSegment={win}
+       onFinished={(winner)=>{onFinished(winner)}}
+       primaryColor='#000000'
+       contrastColor='#ffffff'
+       buttonText="بچرخ"
+       isOnlyOnce={true}
+       size={250}
+       upDuration={1000}
+       downDuration={10000}
+       fontFamily='Arial'
+       />
       }
+      
       </center>
     
       
